@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi — DataSiswa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:#312E81; --primary-dark:#1E1B4B; --primary-light:#EEF2FF;
+    --secondary:#0D9488; --secondary-light:#CCFBF1; --accent:#F59E0B;
+    --bg:#F8FAFC; --text-main:#1E293B; --text-muted:#64748B; --border:#E2E8F0; --white:#fff;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; display:flex; background:var(--bg); color:var(--text-main); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+  .sidebar { position:sticky; top:0; width:250px; height:100vh; flex-shrink:0; display:flex; flex-direction:column; gap:8px; padding:24px 16px; background:var(--primary-dark); color:var(--white); }
+  .brand { display:flex; align-items:center; gap:10px; margin:0 0 32px; padding:0 8px; font-size:20px; font-weight:800; }
+  .brand svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .nav-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:8px; color:rgba(255,255,255,.7); text-decoration:none; font-size:14px; font-weight:500; transition:.2s; }
+  .nav-item svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .nav-item:hover { background:rgba(255,255,255,.08); color:var(--white); }
+  .nav-item.active { background:var(--primary); color:var(--white); font-weight:600; }
+  .main { display:flex; flex:1; flex-direction:column; min-width:0; }
+  .topbar { position:sticky; top:0; z-index:2; display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-bottom:1px solid var(--border); background:var(--white); }
+  .search { display:flex; align-items:center; gap:10px; width:min(320px,100%); padding:9px 14px; border:1px solid var(--border); border-radius:8px; background:var(--bg); }
+  .search svg { width:16px; height:16px; flex-shrink:0; fill:none; stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .search input { width:100%; border:0; outline:0; background:transparent; color:var(--text-main); font:inherit; font-size:14px; }
+  .topbar-right { display:flex; align-items:center; gap:16px; }
+  .icon-btn { position:relative; display:grid; width:38px; height:38px; place-items:center; border:1px solid var(--border); border-radius:8px; background:var(--white); }
+  .icon-btn svg { width:18px; height:18px; fill:none; stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .badge-dot { position:absolute; top:7px; right:7px; width:8px; height:8px; border:2px solid var(--white); border-radius:50%; background:var(--accent); }
+  .user { display:flex; align-items:center; gap:10px; padding-left:16px; border-left:1px solid var(--border); font-size:14px; font-weight:600; }
+  .avatar { display:grid; width:36px; height:36px; place-items:center; border-radius:50%; background:var(--primary-light); color:var(--primary); font-size:13px; font-weight:700; }
+  .content { display:flex; flex:1; flex-direction:column; gap:24px; padding:32px; }
+  .page-header { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .page-header h1 { margin-bottom:4px; font-size:26px; font-weight:800; letter-spacing:-.5px; }
+  .page-header p { color:var(--text-muted); font-size:14px; }
+  .date-chip { padding:9px 16px; border:1px solid var(--border); border-radius:8px; background:var(--white); color:var(--text-muted); font-size:13px; font-weight:500; }
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:20px; }
+  .stat-card { display:flex; flex-direction:column; gap:12px; padding:20px; border:1px solid var(--border); border-radius:12px; background:var(--white); }
+  .stat-label { color:var(--text-muted); font-size:13px; font-weight:500; }
+  .stat-value { font-size:26px; font-weight:800; letter-spacing:-1px; }
+  .panel { overflow:hidden; border:1px solid var(--border); border-radius:12px; background:var(--white); }
+  .table-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:22px 24px; }
+  .table-head h2 { font-size:16px; font-weight:700; }
+  .table-controls { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+  .table-controls input, .table-controls select, .status-select { min-height:38px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:var(--white); color:var(--text-main); font:inherit; font-size:13px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:9px 15px; border:0; border-radius:8px; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn-primary { background:var(--primary); color:var(--white); }
+  .btn-primary:hover { background:var(--primary-dark); }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg); }
+  th { padding:12px 20px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); color:var(--text-muted); font-size:11px; font-weight:700; letter-spacing:.5px; text-align:left; text-transform:uppercase; white-space:nowrap; }
+  td { padding:14px 20px; border-bottom:1px solid var(--border); font-size:14px; }
+  tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover { background:#FAFBFF; }
+  .name-cell { display:flex; align-items:center; gap:12px; white-space:nowrap; }
+  .avatar-sm { display:grid; width:34px; height:34px; flex-shrink:0; place-items:center; border-radius:50%; background:var(--primary-light); color:var(--primary); font-size:11px; font-weight:700; }
+  .status-label { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; background:var(--bg); color:var(--text-muted); font-size:12px; font-weight:600; white-space:nowrap; }
+  .status-label::before { width:6px; height:6px; border-radius:50%; background:currentColor; content:''; }
+  .status-hadir { background:var(--secondary-light); color:var(--secondary); }
+  .status-izin { background:var(--primary-light); color:var(--primary); }
+  .status-sakit { background:#FEF3C7; color:#B45309; }
+  .status-alpa { background:#FEF2F2; color:#B91C1C; }
+  .save-message { min-height:18px; padding:0 24px 16px; color:var(--secondary); font-size:13px; }
+  .empty-state { padding:28px; color:var(--text-muted); text-align:center; }
+  @media(max-width:760px) {
+    .sidebar { width:76px; padding:20px 10px; }
+    .brand { justify-content:center; padding:0; font-size:0; }
+    .brand svg { flex:0 0 26px; }
+    .nav-item { justify-content:center; padding:12px 8px; font-size:0; }
+    .nav-item svg { width:20px; height:20px; }
+    .topbar { padding:12px 16px; }
+    .content { padding:22px 16px; }
+    .user span, .icon-btn { display:none; }
+  }
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span id="brand-name">DataSiswa</span></div>
+    <a class="nav-item" href="dashbard.html" aria-label="Dashboard"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a>
+    <a class="nav-item" href="data-siswa.html" aria-label="Data Siswa"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Data Siswa</a>
+    <a class="nav-item active" href="absensi.html" aria-current="page" aria-label="Absensi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Absensi</a>
+    <a class="nav-item" href="pengaturan.html" aria-label="Pengaturan"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06"></path></svg>Pengaturan</a>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><input id="student-search" type="search" placeholder="Cari siswa..." aria-label="Cari siswa"></label>
+      <div class="topbar-right">
+        <button class="icon-btn" type="button" title="Notifikasi" aria-label="Notifikasi"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><span class="badge-dot" id="notification-dot"></span></button>
+        <div class="user"><div class="avatar" id="admin-avatar">AD</div><span id="admin-label">Admin</span></div>
+      </div>
+    </header>
+    <main class="content">
+      <div class="page-header">
+        <div><h1>Absensi</h1><p>Catat dan pantau kehadiran siswa.</p></div>
+        <div class="date-chip" id="current-date"></div>
+      </div>
+      <section class="stats-grid" aria-label="Ringkasan absensi">
+        <article class="stat-card"><span class="stat-label">Hadir</span><strong class="stat-value" id="present-count">0</strong></article>
+        <article class="stat-card"><span class="stat-label">Izin</span><strong class="stat-value" id="permission-count">0</strong></article>
+        <article class="stat-card"><span class="stat-label">Sakit</span><strong class="stat-value" id="sick-count">0</strong></article>
+        <article class="stat-card"><span class="stat-label">Alpa</span><strong class="stat-value" id="absent-count">0</strong></article>
+        <article class="stat-card"><span class="stat-label">Belum Dicatat</span><strong class="stat-value" id="unmarked-count">0</strong></article>
+      </section>
+      <section class="panel">
+        <div class="table-head">
+          <h2>Daftar Kehadiran</h2>
+          <div class="table-controls">
+            <label for="attendance-date" class="stat-label">Tanggal</label>
+            <input id="attendance-date" type="date">
+            <select id="class-filter" aria-label="Filter kelas"><option value="">Semua Kelas</option></select>
+            <button class="btn btn-primary" type="button" id="save-attendance">Simpan Absensi</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>NIS</th><th>Nama</th><th>Kelas</th><th>Status Kehadiran</th></tr></thead>
+            <tbody id="attendance-rows"></tbody>
+          </table>
+          <p class="empty-state" id="empty-state" hidden>Tidak ada siswa yang cocok dengan filter.</p>
+        </div>
+        <p class="save-message" id="save-message" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+  </div>
+  <script>
+    const defaultStudents = [
+      { nis: "24001", name: "Andi Saputra", className: "XII RPL", gender: "Laki-laki" },
+      { nis: "24002", name: "Budi Santoso", className: "XII TKJ", gender: "Laki-laki" },
+      { nis: "24003", name: "Citra Dewi", className: "XI RPL", gender: "Perempuan" }
+    ];
+    const students = JSON.parse(localStorage.getItem("datasiswa-students") || "null") || defaultStudents;
+    const searchInput = document.getElementById("student-search");
+    const dateInput = document.getElementById("attendance-date");
+    const classFilter = document.getElementById("class-filter");
+    const tableBody = document.getElementById("attendance-rows");
+    const attendanceByStudent = {};
+    const statusOptions = ["", "Hadir", "Izin", "Sakit", "Alpa"];
+    const savedSettings = JSON.parse(localStorage.getItem("datasiswa-settings") || "null");
+    if (savedSettings && typeof savedSettings === "object") {
+      if (typeof savedSettings.schoolName === "string") {
+        document.getElementById("brand-name").textContent = savedSettings.schoolName;
+      }
+      if (typeof savedSettings.adminName === "string") {
+        document.getElementById("admin-label").textContent = savedSettings.adminName;
+        document.getElementById("admin-avatar").textContent =
+          savedSettings.adminName.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+      }
+      if (typeof savedSettings.notifications === "boolean") {
+        document.getElementById("notification-dot").hidden = !savedSettings.notifications;
+      }
+    }
+
+    function dateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function setDateLabel() {
+      const selectedDate = new Date(`${dateInput.value}T12:00:00`);
+      document.getElementById("current-date").textContent =
+        new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(selectedDate);
+    }
+
+    function loadAttendance() {
+      const saved = JSON.parse(localStorage.getItem(`datasiswa-attendance-${dateInput.value}`) || "{}");
+      students.forEach((student) => {
+        attendanceByStudent[student.nis] = saved[student.nis] || "";
+      });
+      if (dateInput.value === dateKey(new Date())) {
+        if (!Object.hasOwn(saved, "24001")) attendanceByStudent["24001"] = "Hadir";
+        if (!Object.hasOwn(saved, "24002")) attendanceByStudent["24002"] = "Hadir";
+      }
+      renderAttendance();
+    }
+
+    function renderAttendance() {
+      const query = searchInput.value.trim().toLocaleLowerCase("id-ID");
+      const selectedClass = classFilter.value;
+      const visibleStudents = students.filter((student) =>
+        (!selectedClass || student.className === selectedClass) &&
+        [student.nis, student.name, student.className].some((value) => value.toLocaleLowerCase("id-ID").includes(query))
+      );
+      tableBody.replaceChildren();
+      visibleStudents.forEach((student) => {
+        const row = document.createElement("tr");
+        const nis = document.createElement("td");
+        nis.textContent = student.nis;
+        const name = document.createElement("td");
+        const nameCell = document.createElement("div");
+        const avatar = document.createElement("div");
+        avatar.className = "avatar-sm";
+        avatar.textContent = student.name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+        nameCell.className = "name-cell";
+        nameCell.append(avatar, document.createTextNode(student.name));
+        name.append(nameCell);
+        const classCell = document.createElement("td");
+        classCell.textContent = student.className;
+        const statusCell = document.createElement("td");
+        const select = document.createElement("select");
+        select.className = "status-select";
+        select.setAttribute("aria-label", `Status absensi ${student.name}`);
+        statusOptions.forEach((status) => {
+          const option = document.createElement("option");
+          option.value = status;
+          option.textContent = status || "Belum dicatat";
+          select.append(option);
+        });
+        select.value = attendanceByStudent[student.nis] || "";
+        select.addEventListener("change", () => {
+          attendanceByStudent[student.nis] = select.value;
+          updateCounts();
+        });
+        statusCell.append(select);
+        row.append(nis, name, classCell, statusCell);
+        tableBody.append(row);
+      });
+      document.getElementById("empty-state").hidden = visibleStudents.length !== 0;
+      updateCounts();
+    }
+
+    function updateCounts() {
+      const statuses = students.map((student) => attendanceByStudent[student.nis] || "");
+      document.getElementById("present-count").textContent = statuses.filter((status) => status === "Hadir").length;
+      document.getElementById("permission-count").textContent = statuses.filter((status) => status === "Izin").length;
+      document.getElementById("sick-count").textContent = statuses.filter((status) => status === "Sakit").length;
+      document.getElementById("absent-count").textContent = statuses.filter((status) => status === "Alpa").length;
+      document.getElementById("unmarked-count").textContent = statuses.filter((status) => !status).length;
+    }
+
+    const today = new Date();
+    dateInput.value = dateKey(today);
+    [...new Set(students.map((student) => student.className))].sort().forEach((className) => {
+      const option = document.createElement("option");
+      option.value = className;
+      option.textContent = className;
+      classFilter.append(option);
+    });
+    dateInput.addEventListener("change", () => {
+      if (!dateInput.value) dateInput.value = dateKey(new Date());
+      setDateLabel();
+      loadAttendance();
+    });
+    classFilter.addEventListener("change", renderAttendance);
+    searchInput.addEventListener("input", renderAttendance);
+    document.getElementById("save-attendance").addEventListener("click", () => {
+      localStorage.setItem(`datasiswa-attendance-${dateInput.value}`, JSON.stringify(attendanceByStudent));
+      document.getElementById("save-message").textContent = "Absensi berhasil disimpan.";
+    });
+    setDateLabel();
+    loadAttendance();
+  </script>
+</body>
+</html>

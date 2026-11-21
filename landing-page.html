@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataSiswa — Kelola Data Siswa Lebih Mudah</title>
+<!-- Font Modern -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & VARIABEL ===== */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --primary: #312E81;       /* Deep Indigo / Navy */
+    --primary-light: #EEF2FF;
+    --secondary: #0D9488;     /* Soft Teal */
+    --accent: #F59E0B;        /* Amber */
+    --bg: #F8FAFC;            /* Off-white */
+    --text-main: #1E293B;     /* Dark Slate */
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --white: #FFFFFF;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== NAVBAR ===== */
+  .navbar {
+    background: var(--white);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 20px; font-weight: 800; color: var(--primary);
+    letter-spacing: -0.5px;
+  }
+  /* Ikon SVG Line-Outline (Buku Terbuka) */
+  .brand svg {
+    width: 28px; height: 28px;
+    stroke: var(--primary); stroke-width: 2;
+    fill: none; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .nav-links {
+    display: flex; gap: 36px;
+  }
+  .nav-links a {
+    text-decoration: none; color: var(--text-muted);
+    font-size: 14px; font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--primary); }
+  .btn-nav {
+    background: var(--primary); color: var(--white);
+    padding: 10px 24px; border-radius: 8px;
+    text-decoration: none; font-size: 14px; font-weight: 600;
+    transition: background 0.2s;
+  }
+  .btn-nav:hover { background: #1E1B4B; }
+
+  /* ===== HERO SECTION ===== */
+  .hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+  }
+  .hero-content h1 {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    color: var(--primary);
+    margin-bottom: 20px;
+  }
+  .hero-content h1 span {
+    color: var(--secondary);
+  }
+  .hero-content p {
+    font-size: 17px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    max-width: 480px;
+  }
+  .hero-buttons {
+    display: flex; gap: 16px;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: var(--white);
+    padding: 14px 28px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover {
+    background: #1E1B4B;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(49, 46, 129, 0.25);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--primary);
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  /* ===== MOCKUP VISUAL (Kanan) ===== */
+  .hero-visual {
+    position: relative;
+  }
+  /* Kartu dashboard mockup */
+  .mockup-card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px -12px rgba(30, 41, 59, 0.15);
+    padding: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+  }
+  /* Header mockup */
+  .mockup-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mockup-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .mockup-dot.red { background: #EF4444; }
+  .mockup-dot.yellow { background: #F59E0B; }
+  .mockup-dot.green { background: #22C55E; }
+  .mockup-title {
+    margin-left: 8px; font-size: 12px; font-weight: 600;
+    color: var(--text-muted);
+  }
+  /* Bar chart mockup */
+  .mockup-chart {
+    display: flex; align-items: flex-end; gap: 12px;
+    height: 120px; padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .mockup-bar {
+    flex: 1; border-radius: 6px 6px 0 0;
+    background: var(--primary-light);
+    transition: background 0.2s;
+  }
+  .mockup-bar.highlight { background: var(--primary); }
+  .mockup-bar.highlight-teal { background: var(--secondary); }
+  /* Tabel mockup */
+  .mockup-table {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .mockup-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mockup-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--primary);
+  }
+  .mockup-line {
+    flex: 1; height: 8px; border-radius: 4px;
+    background: #F1F5F9;
+  }
+  .mockup-line.short { flex: 0.5; }
+
+  /* Ornamen abstrak minimalis (bukan blob AI) */
+  .hero-visual::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border: 2px dashed var(--border);
+    border-radius: 24px;
+    top: -20px; right: -20px;
+    z-index: 1;
+  }
+  .hero-visual::after {
+    content: '';
+    position: absolute;
+    width: 120px; height: 120px;
+    background: var(--secondary);
+    opacity: 0.08;
+    border-radius: 24px;
+    bottom: -30px; left: -30px;
+    z-index: 0;
+  }
+
+  /* ===== FEATURES SECTION ===== */
+  .features {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 48px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--white);
+    padding: 28px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .feature-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(49, 46, 129, 0.1);
+  }
+  .feature-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+  }
+  .feature-icon svg {
+    width: 24px; height: 24px;
+    stroke: var(--primary); stroke-width: 2;
+    fill: none; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .feature-card h3 {
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 8px; color: var(--text-main);
+  }
+  .feature-card p {
+    font-size: 14px; color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: var(--primary);
+    color: var(--white);
+    padding: 40px 48px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .footer p {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="brand">
+      <!-- Ikon Buku Terbuka (Line Outline) -->
+      <svg viewBox="0 0 24 24">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+      </svg>
+      DataSiswa
+    </div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Fitur</a>
+      <a href="#">Tentang</a>
+      <a href="#">Kontak</a>
+    </div>
+    <a href="#" class="btn-nav">Sign In</a>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Kelola Data Siswa <span>Lebih Mudah</span> dan Cepat</h1>
+      <p>Sistem informasi manajemen data siswa yang modern, terintegrasi, dan dirancang untuk mempermudah pekerjaan guru serta staf administrasi sekolah.</p>
+      <div class="hero-buttons">
+        <a href="#" class="btn-primary">
+          Mulai Sekarang
+          <!-- Ikon Panah Kanan -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a href="#" class="btn-outline">Pelajari Fitur</a>
+      </div>
+    </div>
+
+    <!-- Visual Kanan: Mockup Dashboard -->
+    <div class="hero-visual">
+      <div class="mockup-card">
+        <div class="mockup-header">
+          <div class="mockup-dot red"></div>
+          <div class="mockup-dot yellow"></div>
+          <div class="mockup-dot green"></div>
+          <span class="mockup-title">Dashboard Data Siswa</span>
+        </div>
+        
+        <!-- Chart Mockup -->
+        <div class="mockup-chart">
+          <div class="mockup-bar" style="height: 40%;"></div>
+          <div class="mockup-bar" style="height: 65%;"></div>
+          <div class="mockup-bar highlight" style="height: 90%;"></div>
+          <div class="mockup-bar" style="height: 55%;"></div>
+          <div class="mockup-bar highlight-teal" style="height: 75%;"></div>
+          <div class="mockup-bar" style="height: 45%;"></div>
+        </div>
+
+        <!-- Table Mockup -->
+        <div class="mockup-table">
+          <div class="mockup-row">
+            <div class="mockup-avatar">AS</div>
+            <div class="mockup-line"></div>
+            <div class="mockup-line short"></div>
+          </div>
+          <div class="mockup-row">
+            <div class="mockup-avatar">BS</div>
+            <div class="mockup-line"></div>
+            <div class="mockup-line short"></div>
+          </div>
+          <div class="mockup-row">
+            <div class="mockup-avatar">CD</div>
+            <div class="mockup-line"></div>
+            <div class="mockup-line short"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="features">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <!-- Ikon Users (Line) -->
+        <svg viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+      <h3>Manajemen Data</h3>
+      <p>Kelola biodata siswa, riwayat kelas, dan informasi penting lainnya dalam satu tempat terpusat.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <!-- Ikon Calendar (Line) -->
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+      <h3>Absensi Digital</h3>
+      <p>Pantau kehadiran siswa secara real-time dengan sistem absensi digital yang akurat dan efisien.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <!-- Ikon Bar Chart (Line) -->
+        <svg viewBox="0 0 24 24">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </div>
+      <h3>Laporan & Statistik</h3>
+      <p>Dapatkan laporan data siswa yang komprehensif dan visualisasi statistik untuk evaluasi sekolah.</p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>&copy; 2026 DataSiswa. Dirancang untuk pendidikan yang lebih baik.</p>
+  </footer>
+
+</body>
+</html>
